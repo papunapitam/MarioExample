@@ -5,7 +5,10 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.mn.mariogame.Items.ItemDef;
+import com.mn.mariogame.Items.Mushroom;
 import com.mn.mariogame.MarioGame;
 import com.mn.mariogame.Screens.Hud;
 import com.mn.mariogame.Screens.PlayScreen;
@@ -33,6 +36,8 @@ public class Coin extends InteractiveTileObject {
         }
         else {
             MarioGame.manager.get("audio/sounds/coin.wav", Sound.class).play();
+            screen.spawnItem(new ItemDef(new Vector2(body.getPosition().x, body.getPosition().y + 16 / MarioGame.PPM),
+                    Mushroom.class));
         }
         getCell().setTile(tileSet.getTile(BLANK_COIN));
         Hud.addScore(100);

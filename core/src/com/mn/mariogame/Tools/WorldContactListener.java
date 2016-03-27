@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.mn.mariogame.Items.Item;
 import com.mn.mariogame.MarioGame;
 import com.mn.mariogame.Sprites.Enemy;
 import com.mn.mariogame.Sprites.Goomba;
@@ -52,6 +53,18 @@ public class WorldContactListener implements ContactListener{
                 ((Enemy)fixA.getUserData()).reverseVelocity(true, false);
                 ((Enemy)fixB.getUserData()).reverseVelocity(true, false);
                 break;
+            case MarioGame.ITEM_BIT | MarioGame.OBJECT_BIT:
+                if(fixA.getFilterData().categoryBits == MarioGame.ITEM_BIT) {
+                    ((Item)fixA.getUserData()).reverseVelocity(true, false);
+                } else {
+                    ((Item)fixB.getUserData()).reverseVelocity(true, false);
+                } break;
+            case MarioGame.ITEM_BIT | MarioGame.MARIO_BIT:
+                if(fixA.getFilterData().categoryBits == MarioGame.ITEM_BIT) {
+                    ((Item)fixA.getUserData()).use((Mario) fixB.getUserData());
+                } else {
+                    ((Item)fixB.getUserData()).use((Mario) fixA.getUserData());
+                } break;
         }
 
     }
