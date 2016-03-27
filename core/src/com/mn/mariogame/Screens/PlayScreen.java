@@ -29,6 +29,7 @@ import com.mn.mariogame.Tools.B2WorldCreator;
 import com.mn.mariogame.Tools.WorldContactListener;
 
 import java.util.PriorityQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 
 /**
@@ -50,7 +51,7 @@ public class PlayScreen implements Screen {
     private FPSLogger fpsLogger;
     private Music music;
     private Array<Item> items;
-    private PriorityQueue<ItemDef> itemsToSpawn;
+    private LinkedBlockingDeque<ItemDef> itemsToSpawn;
     private Goomba goomba;
     private B2WorldCreator creator;
 
@@ -83,7 +84,7 @@ public class PlayScreen implements Screen {
         music.play();
 
         items = new Array<Item>();
-        itemsToSpawn = new PriorityQueue<ItemDef>();
+        itemsToSpawn = new LinkedBlockingDeque<ItemDef>();
     }
 
     public void spawnItem(ItemDef idef) {
