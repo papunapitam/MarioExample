@@ -1,5 +1,6 @@
 package com.mn.mariogame.Sprites;
 
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -48,8 +49,9 @@ public class Mario extends Sprite {
     private boolean runningRight;
     private boolean marioIsBig;
     private boolean runGrowAnimation;
-    private boolean timeToDefineBigMario;
 
+    private boolean timeToDefineBigMario;
+    private boolean timeToRedefineMario;
 
     public Mario(PlayScreen screen) {
         this.world = screen.getWorld();
@@ -103,6 +105,9 @@ public class Mario extends Sprite {
         setRegion(getFrame(dt));
         if(timeToDefineBigMario) {
             defineBigMario();
+        }
+        if(timeToRedefineMario) {
+            redefineMario();
         }
     }
 
@@ -164,6 +169,53 @@ public class Mario extends Sprite {
 
     public boolean isBig() {
         return marioIsBig;
+    }
+
+    public void hit() {
+        if(marioIsBig) {
+            marioIsBig = false;
+            timeToRedefineMario = true;
+            setBounds(getX(), getY(), getWidth(), getHeight() / 2);
+            MarioGame.manager.get("audio/sounds/powerdown.wav", Sound.class).play();
+        }
+        else {
+            MarioGame.manager.get("audio/music/mario_music.ogg", Music.class).stop();
+            MarioGame.manager.get("audio/sounds/mariodie.wav", Sound.class).play();
+        }
+    }
+
+    public void redefineMario() {
+        Vector2 position = b2body.getPosition();
+        world.destroyBody(b2body);
+
+        BodyDef bdef = new BodyDef();
+        bdef.position.set(position);
+        bdef.type = BodyDef.BodyType.DynamicBody;
+        b2body = world.createBody(bdef);
+
+        FixtureDef fdef = new FixtureDef();
+        CircleShape shape = new CircleShape();
+        shape.setRadius(6 / MarioGame.PPM);
+        fdef.filter.categoryBits = MarioGame.MARIO_BIT;
+        fdef.filter.maskBits = MarioGame.GROUND_BIT |
+                MarioGame.COIN_BIT |
+                MarioGame.BRICK_BIT |
+                MarioGame.OBJECT_BIT |
+                MarioGame.ENEMY_BIT |
+                MarioGame.ENEMY_HEAD_BIT |
+                MarioGame.ITEM_BIT;
+
+        fdef.shape = shape;
+        b2body.createFixture(fdef).setUserData(this);
+
+        EdgeShape head = new EdgeShape();
+        head.set(new Vector2(-2 / MarioGame.PPM, 6 / MarioGame.PPM), (new Vector2(2 / MarioGame.PPM, 6 / MarioGame.PPM)));
+        fdef.filter.categoryBits = MarioGame.MARIO_HEAD_BIT;
+        fdef.shape = head;
+        fdef.isSensor = true;
+        b2body.createFixture(fdef).setUserData(this);
+
+        timeToRedefineMario = false;
     }
 
     public void defineBigMario() {

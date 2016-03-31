@@ -29,16 +29,16 @@ public class WorldContactListener implements ContactListener{
             case MarioGame.MARIO_HEAD_BIT | MarioGame.BRICK_BIT:
             case MarioGame.MARIO_HEAD_BIT | MarioGame.COIN_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.MARIO_HEAD_BIT) {
-                    ((InteractiveTileObject) fixB.getUserData()).onHeadHit(((Mario) fixA.getUserData()));
+                    ((InteractiveTileObject)fixB.getUserData()).onHeadHit(((Mario)fixA.getUserData()));
                 } else {
-                    ((InteractiveTileObject) fixA.getUserData()).onHeadHit(((Mario) fixB.getUserData()));
+                    ((InteractiveTileObject)fixA.getUserData()).onHeadHit(((Mario)fixB.getUserData()));
                 }
                 break;
             case MarioGame.ENEMY_HEAD_BIT | MarioGame.MARIO_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.ENEMY_HEAD_BIT) {
                     ((Enemy)fixA.getUserData()).hitOnHead();
                 } else {
-                    ((Enemy) fixB.getUserData()).hitOnHead();
+                    ((Enemy)fixB.getUserData()).hitOnHead();
                 } break;
             case MarioGame.ENEMY_BIT | MarioGame.OBJECT_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.ENEMY_BIT) {
@@ -47,7 +47,11 @@ public class WorldContactListener implements ContactListener{
                     ((Enemy)fixB.getUserData()).reverseVelocity(true, false);
                 } break;
             case MarioGame.MARIO_BIT | MarioGame.ENEMY_BIT:
-                Gdx.app.log("MARIO", "DIED");
+                if(fixA.getFilterData().categoryBits == MarioGame.MARIO_BIT) {
+                    ((Mario)fixA.getUserData()).hit();
+                } else {
+                    ((Mario)fixB.getUserData()).hit();
+                }
                 break;
             case MarioGame.ENEMY_BIT | MarioGame.ENEMY_BIT:
                 ((Enemy)fixA.getUserData()).reverseVelocity(true, false);
