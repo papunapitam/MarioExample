@@ -14,8 +14,9 @@ import com.mn.mariogame.MarioGame;
 import com.mn.mariogame.Screens.PlayScreen;
 import com.mn.mariogame.Sprites.Brick;
 import com.mn.mariogame.Sprites.Coin;
-import com.mn.mariogame.Sprites.Goomba;
-import com.mn.mariogame.Sprites.Mario;
+import com.mn.mariogame.Sprites.Enemies.Enemy;
+import com.mn.mariogame.Sprites.Enemies.Goomba;
+import com.mn.mariogame.Sprites.Enemies.Turtle;
 
 /**
  * Created by Admin on 3.3.2016.
@@ -23,6 +24,7 @@ import com.mn.mariogame.Sprites.Mario;
 public class B2WorldCreator {
 
     private Array<Goomba> goombas;
+    private Array<Turtle> turtles;
 
     public B2WorldCreator(PlayScreen screen) {
 
@@ -81,9 +83,27 @@ public class B2WorldCreator {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             goombas.add(new Goomba(screen, rect.getX() / MarioGame.PPM, rect.getY() / MarioGame.PPM));
         }
+
+        //create all turtles
+        turtles = new Array<Turtle>();
+        for(MapObject object : map.getLayers().get(7).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            turtles.add(new Turtle(screen, rect.getX() / MarioGame.PPM, rect.getY() / MarioGame.PPM));
+        }
+    }
+
+    public Array<Enemy> getEnemies() {
+        Array<Enemy> enemies = new Array<Enemy>();
+        enemies.addAll(goombas);
+        enemies.addAll(turtles);
+        return enemies;
     }
 
     public Array<Goomba> getGoombas() {
         return goombas;
     }
+    public Array<Turtle> getTurtles() {
+        return turtles;
+    }
+
 }

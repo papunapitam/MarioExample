@@ -13,7 +13,6 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -22,13 +21,12 @@ import com.mn.mariogame.Items.Item;
 import com.mn.mariogame.Items.ItemDef;
 import com.mn.mariogame.Items.Mushroom;
 import com.mn.mariogame.MarioGame;
-import com.mn.mariogame.Sprites.Enemy;
-import com.mn.mariogame.Sprites.Goomba;
+import com.mn.mariogame.Sprites.Enemies.Enemy;
+import com.mn.mariogame.Sprites.Enemies.Goomba;
 import com.mn.mariogame.Sprites.Mario;
 import com.mn.mariogame.Tools.B2WorldCreator;
 import com.mn.mariogame.Tools.WorldContactListener;
 
-import java.util.PriorityQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 
@@ -105,11 +103,11 @@ public class PlayScreen implements Screen {
         handleSpawningItems();
 
         world.step(1 / 60f, 6, 2);
-
-        gameCam.position.x = player.b2body.getPosition().x;
-
+        if(!player.isDead()) {
+            gameCam.position.x = player.b2body.getPosition().x;
+        }
         player.update(dt);
-        for(Enemy enemy : creator.getGoombas()) {
+        for(Enemy enemy : creator.getEnemies()) {
             enemy.update(dt);
             if(enemy.getX() < player.getX() + 224 / MarioGame.PPM) {
                 enemy.b2body.setActive(true);
@@ -127,14 +125,20 @@ public class PlayScreen implements Screen {
     }
 
     public void handleInput(float dt) {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) && (player.b2body.getLinearVelocity().x <= 2)) {
-            player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && (player.b2body.getLinearVelocity().x >= -2)) {
-            player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
+        if(player.currentState != Mario.State.DEAD) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                if ((player.currentState == Mario.State.JUMPING) || (player.currentState == Mario.State.FALLING)) {
+                    return;
+                } else {
+                    player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
+                }
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && (player.b2body.getLinearVelocity().x <= 2)) {
+                player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && (player.b2body.getLinearVelocity().x >= -2)) {
+                player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
+            }
         }
     }
 
@@ -159,7 +163,7 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
         player.draw(game.batch);
-        for(Enemy enemy : creator.getGoombas()) {
+        for(Enemy enemy : creator.getEnemies()) {
             enemy.draw(game.batch);
         }
         for(Item item : items) {
@@ -170,6 +174,11 @@ public class PlayScreen implements Screen {
         //draw next layer of HUD
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
+
+        if(gameOver()) {
+            game.setScreen(new GameOverScreen(game));
+            dispose();
+        }
 
         fpsLogger.log();
     }
@@ -213,5 +222,14 @@ public class PlayScreen implements Screen {
 
     public World getWorld() {
         return world;
+    }
+
+    public boolean gameOver() {
+        if(player.currentState == Mario.State.DEAD && player.getStateTimer() > 3) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.mn.mariogame.Sprites;
+package com.mn.mariogame.Sprites.Enemies;
 
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -7,21 +7,17 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 import com.mn.mariogame.MarioGame;
 import com.mn.mariogame.Screens.PlayScreen;
-
-import javax.xml.soap.Text;
-
-import sun.nio.cs.ext.MacRoman;
+import com.mn.mariogame.Sprites.Mario;
 
 /**
  * Created by Admin on 10.3.2016.
  */
-public class Goomba extends Enemy {
+public class Goomba extends com.mn.mariogame.Sprites.Enemies.Enemy {
 
     private float stateTime;
     private Animation walkAnimation;
@@ -100,7 +96,7 @@ public class Goomba extends Enemy {
     }
 
     @Override
-    public void hitOnHead() {
+    public void hitOnHead(Mario mario) {
         setToDestroy = true;
         MarioGame.manager.get("audio/sounds/stomp.wav", Sound.class).play();
     }

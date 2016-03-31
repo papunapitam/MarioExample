@@ -1,6 +1,5 @@
 package com.mn.mariogame.Tools;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -8,9 +7,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.mn.mariogame.Items.Item;
 import com.mn.mariogame.MarioGame;
-import com.mn.mariogame.Sprites.Brick;
-import com.mn.mariogame.Sprites.Enemy;
-import com.mn.mariogame.Sprites.Goomba;
+import com.mn.mariogame.Sprites.Enemies.Enemy;
 import com.mn.mariogame.Sprites.InteractiveTileObject;
 import com.mn.mariogame.Sprites.Mario;
 
@@ -36,9 +33,9 @@ public class WorldContactListener implements ContactListener{
                 break;
             case MarioGame.ENEMY_HEAD_BIT | MarioGame.MARIO_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.ENEMY_HEAD_BIT) {
-                    ((Enemy)fixA.getUserData()).hitOnHead();
+                    ((Enemy)fixA.getUserData()).hitOnHead((Mario)fixB.getUserData());
                 } else {
-                    ((Enemy)fixB.getUserData()).hitOnHead();
+                    ((Enemy)fixB.getUserData()).hitOnHead((Mario)fixA.getUserData());
                 } break;
             case MarioGame.ENEMY_BIT | MarioGame.OBJECT_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.ENEMY_BIT) {
@@ -48,9 +45,9 @@ public class WorldContactListener implements ContactListener{
                 } break;
             case MarioGame.MARIO_BIT | MarioGame.ENEMY_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.MARIO_BIT) {
-                    ((Mario)fixA.getUserData()).hit();
+                    ((Mario)fixA.getUserData()).hit((Enemy) fixB.getUserData());
                 } else {
-                    ((Mario)fixB.getUserData()).hit();
+                    ((Mario)fixB.getUserData()).hit((Enemy) fixA.getUserData());
                 }
                 break;
             case MarioGame.ENEMY_BIT | MarioGame.ENEMY_BIT:
