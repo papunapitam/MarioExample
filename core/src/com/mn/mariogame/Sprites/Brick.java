@@ -22,11 +22,15 @@ public class Brick extends InteractiveTileObject {
     }
 
     @Override
-    public void onHeadHit() {
-        Gdx.app.log("Brick", "Collision");
-        setCategoryFilter(MarioGame.DESTROYED_BIT);
-        getCell().setTile(null);
-        Hud.addScore(100);
-        MarioGame.manager.get("audio/sounds/breakblock.wav", Sound.class).play();
+    public void onHeadHit(Mario mario) {
+        if(mario.isBig()) {
+            setCategoryFilter(MarioGame.DESTROYED_BIT);
+            getCell().setTile(null);
+            Hud.addScore(100);
+            MarioGame.manager.get("audio/sounds/breakblock.wav", Sound.class).play();
+        }
+        else {
+            MarioGame.manager.get("audio/sounds/bump.wav", Sound.class).play();
+        }
     }
 }

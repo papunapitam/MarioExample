@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.mn.mariogame.Items.Item;
 import com.mn.mariogame.MarioGame;
+import com.mn.mariogame.Sprites.Brick;
 import com.mn.mariogame.Sprites.Enemy;
 import com.mn.mariogame.Sprites.Goomba;
 import com.mn.mariogame.Sprites.InteractiveTileObject;
@@ -24,16 +25,15 @@ public class WorldContactListener implements ContactListener{
 
         int cdef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
 
-        if (fixA.getUserData() == "head" || fixB.getUserData() == "head") {
-            Fixture head = fixA.getUserData().equals("head") ? fixA : fixB;
-            Fixture object = head == fixA ? fixB : fixA;
-
-            if(object.getUserData() instanceof InteractiveTileObject) {
-                ((InteractiveTileObject) object.getUserData()).onHeadHit();
-            }
-        }
-
         switch(cdef) {
+            case MarioGame.MARIO_HEAD_BIT | MarioGame.BRICK_BIT:
+            case MarioGame.MARIO_HEAD_BIT | MarioGame.COIN_BIT:
+                if(fixA.getFilterData().categoryBits == MarioGame.MARIO_HEAD_BIT) {
+                    ((InteractiveTileObject) fixB.getUserData()).onHeadHit(((Mario) fixA.getUserData()));
+                } else {
+                    ((InteractiveTileObject) fixA.getUserData()).onHeadHit(((Mario) fixB.getUserData()));
+                }
+                break;
             case MarioGame.ENEMY_HEAD_BIT | MarioGame.MARIO_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.ENEMY_HEAD_BIT) {
                     ((Enemy)fixA.getUserData()).hitOnHead();
