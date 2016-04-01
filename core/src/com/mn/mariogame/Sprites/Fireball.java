@@ -34,9 +34,11 @@ public class Fireball extends Sprite {
     private Body b2body;
     private World world;
     private PlayScreen screen;
+    private boolean fireRight;
 
-    public Fireball(PlayScreen screen, float x, float y) {
+    public Fireball(PlayScreen screen, float x, float y, boolean fireRight) {
         this.screen = screen;
+        this.fireRight = fireRight;
         frames = new Array<TextureRegion>();
         for(int i = 0; i < 4; i++) {
             frames.add(new TextureRegion(screen.getAtlas().findRegion("fireball"), i * 8, 0, 8, 8));
@@ -61,7 +63,7 @@ public class Fireball extends Sprite {
             stateTime = 0;
 
         } else if (!destroyed) {
-            b2body.setLinearVelocity(new Vector2(2f, 0));
+            b2body.setLinearVelocity(new Vector2(fireRight ? 2f : -2f, 0));
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             setRegion(rotateAnimation.getKeyFrame(stateTime, true));
         }
