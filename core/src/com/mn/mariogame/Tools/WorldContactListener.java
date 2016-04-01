@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.mn.mariogame.Items.Item;
 import com.mn.mariogame.MarioGame;
 import com.mn.mariogame.Sprites.Enemies.Enemy;
+import com.mn.mariogame.Sprites.Fireball;
 import com.mn.mariogame.Sprites.InteractiveTileObject;
 import com.mn.mariogame.Sprites.Mario;
 
@@ -33,9 +34,15 @@ public class WorldContactListener implements ContactListener{
                 break;
             case MarioGame.ENEMY_HEAD_BIT | MarioGame.MARIO_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.ENEMY_HEAD_BIT) {
-                    ((Enemy)fixA.getUserData()).hitOnHead((Mario)fixB.getUserData());
+                    ((Enemy)fixA.getUserData()).hitOnHead((Mario) fixB.getUserData());
                 } else {
-                    ((Enemy)fixB.getUserData()).hitOnHead((Mario)fixA.getUserData());
+                    ((Enemy)fixB.getUserData()).hitOnHead((Mario) fixA.getUserData());
+                } break;
+            case MarioGame.FIREBALL_BIT | MarioGame.ENEMY_BIT:
+                if(fixA.getFilterData().categoryBits == MarioGame.FIREBALL_BIT) {
+                    ((Fireball)fixA.getUserData()).hitEnemy((Enemy) fixB.getUserData());
+                } else {
+                    ((Fireball)fixB.getUserData()).hitEnemy((Enemy) fixA.getUserData());
                 } break;
             case MarioGame.ENEMY_BIT | MarioGame.OBJECT_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.ENEMY_BIT) {
@@ -43,16 +50,23 @@ public class WorldContactListener implements ContactListener{
                 } else {
                     ((Enemy)fixB.getUserData()).reverseVelocity(true, false);
                 } break;
+            case (MarioGame.FIREBALL_BIT | MarioGame.OBJECT_BIT):
+            case (MarioGame.FIREBALL_BIT | MarioGame.COIN_BIT):
+            case (MarioGame.FIREBALL_BIT | MarioGame.BRICK_BIT):
+                if(fixA.getFilterData().categoryBits == MarioGame.FIREBALL_BIT) {
+                    ((Fireball)fixA.getUserData()).destroy();
+                } else {
+                    ((Fireball)fixB.getUserData()).destroy();
+                } break;
             case MarioGame.MARIO_BIT | MarioGame.ENEMY_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.MARIO_BIT) {
-                    ((Mario)fixA.getUserData()).hit((Enemy) fixB.getUserData());
+                    ((Mario)fixA.getUserData()).hit((Enemy)fixB.getUserData());
                 } else {
-                    ((Mario)fixB.getUserData()).hit((Enemy) fixA.getUserData());
-                }
-                break;
+                    ((Mario)fixB.getUserData()).hit((Enemy)fixA.getUserData());
+                } break;
             case MarioGame.ENEMY_BIT | MarioGame.ENEMY_BIT:
-                ((Enemy)fixA.getUserData()).reverseVelocity(true, false);
-                ((Enemy)fixB.getUserData()).reverseVelocity(true, false);
+                ((Enemy)fixA.getUserData()).onEnemyHit((Enemy)fixB.getUserData());
+                ((Enemy)fixB.getUserData()).onEnemyHit((Enemy)fixA.getUserData());
                 break;
             case MarioGame.ITEM_BIT | MarioGame.OBJECT_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.ITEM_BIT) {
@@ -62,9 +76,9 @@ public class WorldContactListener implements ContactListener{
                 } break;
             case MarioGame.ITEM_BIT | MarioGame.MARIO_BIT:
                 if(fixA.getFilterData().categoryBits == MarioGame.ITEM_BIT) {
-                    ((Item)fixA.getUserData()).use((Mario) fixB.getUserData());
+                    ((Item)fixA.getUserData()).use((Mario)fixB.getUserData());
                 } else {
-                    ((Item)fixB.getUserData()).use((Mario) fixA.getUserData());
+                    ((Item)fixB.getUserData()).use((Mario)fixA.getUserData());
                 } break;
         }
 

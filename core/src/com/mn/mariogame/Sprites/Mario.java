@@ -3,6 +3,7 @@ package com.mn.mariogame.Sprites;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -59,8 +60,12 @@ public class Mario extends Sprite {
     private boolean timeToRedefineMario;
 
     private boolean marioIsDead;
+    private PlayScreen screen;
+
+    private Array<Fireball> fireballs;
 
     public Mario(PlayScreen screen) {
+        this.screen = screen;
         this.world = screen.getWorld();
         currentState = State.STANDING;
         previousState = State.STANDING;
@@ -102,6 +107,8 @@ public class Mario extends Sprite {
         defineMario();
         setBounds(0, 0, 16 / MarioGame.PPM, 16 / MarioGame.PPM);
         setRegion(marioStand);
+
+        fireballs = new Array<Fireball>();
     }
 
     public void update(float dt) {
@@ -118,6 +125,13 @@ public class Mario extends Sprite {
         }
         if(timeToRedefineMario) {
             redefineMario();
+        }
+
+        for(Fireball f : fireballs) {
+            f.update(dt);
+            if(f.isDestroyed()) {
+                fireballs.removeValue(f, true);
+            }
         }
     }
 
@@ -317,5 +331,16 @@ public class Mario extends Sprite {
         fdef.shape = head;
         fdef.isSensor = true;
         b2body.createFixture(fdef).setUserData(this);
+    }
+
+    public void fire() {
+        fireballs.add(new Fireball(screen, b2body.getPosition().x, b2body.getPosition().y));
+    }
+
+    public void draw(Batch batch) {
+        super.draw(batch);
+        for(Fireball f : fireballs) {
+            f.draw(batch);
+        }
     }
 }

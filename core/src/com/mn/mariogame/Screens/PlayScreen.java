@@ -139,6 +139,9 @@ public class PlayScreen implements Screen {
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && (player.b2body.getLinearVelocity().x >= -2)) {
                 player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
             }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                player.fire();
+            }
         }
     }
 
@@ -222,6 +225,14 @@ public class PlayScreen implements Screen {
 
     public World getWorld() {
         return world;
+    }
+
+    public Mario getMario() {
+        return player;
+    }
+
+    public B2WorldCreator getCreator() {
+        return creator;
     }
 
     public boolean gameOver() {

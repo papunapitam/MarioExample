@@ -69,7 +69,8 @@ public class Goomba extends com.mn.mariogame.Sprites.Enemies.Enemy {
                 MarioGame.BRICK_BIT |
                 MarioGame.ENEMY_BIT |
                 MarioGame.OBJECT_BIT |
-                MarioGame.MARIO_BIT;
+                MarioGame.MARIO_BIT |
+                MarioGame.FIREBALL_BIT;
 
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData(this);
@@ -86,7 +87,6 @@ public class Goomba extends com.mn.mariogame.Sprites.Enemies.Enemy {
         fdef.restitution = 0.5f;
         fdef.filter.categoryBits = MarioGame.ENEMY_HEAD_BIT;
         b2body.createFixture(fdef).setUserData(this);
-
     }
 
     public void draw(Batch batch) {
@@ -99,5 +99,19 @@ public class Goomba extends com.mn.mariogame.Sprites.Enemies.Enemy {
     public void hitOnHead(Mario mario) {
         setToDestroy = true;
         MarioGame.manager.get("audio/sounds/stomp.wav", Sound.class).play();
+    }
+
+    @Override
+    public void onEnemyHit(Enemy enemy) {
+        if(enemy instanceof Turtle && ((Turtle) enemy).currentState == Turtle.State.MOVING_SHELL) {
+            setToDestroy = true;
+        }
+        else {
+            reverseVelocity(true, false);
+        }
+    }
+
+    public void destroy() {
+        setToDestroy = true;
     }
 }

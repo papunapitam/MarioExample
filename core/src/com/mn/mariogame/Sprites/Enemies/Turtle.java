@@ -1,11 +1,14 @@
 package com.mn.mariogame.Sprites.Enemies;
 
-import com.badlogic.gdx.graphics.Texture;
+
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
@@ -13,9 +16,6 @@ import com.mn.mariogame.MarioGame;
 import com.mn.mariogame.Screens.PlayScreen;
 import com.mn.mariogame.Sprites.Mario;
 
-import javax.xml.soap.Text;
-
-import sun.security.x509.CertificateExtensions;
 
 /**
  * Created by Admin on 31.3.2016.
@@ -33,13 +33,15 @@ public class Turtle extends Enemy {
     public enum State {
         WALKING,
         STANDING_SHELL,
-        MOVING_SHELL
+        MOVING_SHELL,
+        DEAD
     };
 
     public State currentState;
     public State previousState;
     public static final int KICK_LEFT_SPEED = -2;
     public static final int KICK_RIGHT_SPEED = 2;
+    private float deadRotationDegrees;
 
     public Turtle(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -49,6 +51,7 @@ public class Turtle extends Enemy {
         shell = new TextureRegion(screen.getAtlas().findRegion("turtle"), 64, 0, 16, 24);
         walkAnimation = new Animation(0.2f, frames);
         currentState = previousState = State.WALKING;
+        deadRotationDegrees = 0;
 
         setBounds(getX(), getY(), 16 / MarioGame.PPM, 24 / MarioGame.PPM);
     }
@@ -69,7 +72,8 @@ public class Turtle extends Enemy {
                 MarioGame.BRICK_BIT |
                 MarioGame.ENEMY_BIT |
                 MarioGame.OBJECT_BIT |
-                MarioGame.MARIO_BIT;
+                MarioGame.MARIO_BIT |
+                MarioGame.FIREBALL_BIT;
 
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData(this);
@@ -96,6 +100,32 @@ public class Turtle extends Enemy {
         }
         else {
             kick(mario.getX() <= this.getX() ? KICK_RIGHT_SPEED : KICK_LEFT_SPEED);
+        }
+    }
+
+    public void onBallHit() {
+        if(currentState != State.STANDING_SHELL) {
+            currentState = State.STANDING_SHELL;
+            velocity.x = 0;
+        }
+        else {
+            return;
+        }
+    }
+
+    @Override
+    public void onEnemyHit(Enemy enemy) {
+        if(enemy instanceof Turtle) {
+            if(((Turtle) enemy).currentState == State.MOVING_SHELL && currentState != State.MOVING_SHELL) {
+                killed();
+            } else if(currentState == State.MOVING_SHELL && ((Turtle) enemy).currentState == State.WALKING) {
+                return;
+            }
+            else {
+                reverseVelocity(true, false);
+            }
+        } else if(currentState != State.MOVING_SHELL) {
+            reverseVelocity(true, false);
         }
     }
 
@@ -143,7 +173,29 @@ public class Turtle extends Enemy {
         }
 
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - 8 / MarioGame.PPM);
-        b2body.setLinearVelocity(velocity);
 
+        if(currentState == State.DEAD) {
+            deadRotationDegrees += 3;
+            rotate(deadRotationDegrees);
+            if(stateTime > 5 && !destroyed) {
+                world.destroyBody(b2body);
+                destroyed = true;
+            }
+        }
+        else {
+            b2body.setLinearVelocity(velocity);
+        }
+    }
+
+    public void killed() {
+        currentState = State.DEAD;
+        Filter filter = new Filter();
+        filter.maskBits = MarioGame.NOTHING_BIT;
+
+        for(Fixture fixture : b2body.getFixtureList()) {
+            fixture.setUserData(filter);
+        }
+        b2body.applyLinearImpulse(new Vector2(0, 5f), b2body.getWorldCenter(), true);
+        screen.getCreator().removeTurtle(this);
     }
 }

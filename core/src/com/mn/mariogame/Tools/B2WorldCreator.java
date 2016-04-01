@@ -99,6 +99,10 @@ public class B2WorldCreator {
         return enemies;
     }
 
+    public void removeTurtle(Turtle turtle) {
+        turtles.removeValue(turtle, true);
+    }
+
     public Array<Goomba> getGoombas() {
         return goombas;
     }
