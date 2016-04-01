@@ -63,7 +63,9 @@ public class Fireball extends Sprite {
             stateTime = 0;
 
         } else if (!destroyed) {
-            b2body.setLinearVelocity(new Vector2(fireRight ? 2f : -2f, 0));
+            if(b2body.getLinearVelocity().y > 2f) {
+                b2body.setLinearVelocity(new Vector2(b2body.getLinearVelocity().x, 2f) );
+            }
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             setRegion(rotateAnimation.getKeyFrame(stateTime, true));
         }
@@ -74,6 +76,7 @@ public class Fireball extends Sprite {
         world = screen.getWorld();
         bdef.position.set(getX(), getY());
         bdef.type = BodyDef.BodyType.DynamicBody;
+        bdef.gravityScale = 2f;
         b2body = world.createBody(bdef);
 
         FixtureDef fdef = new FixtureDef();
@@ -87,8 +90,10 @@ public class Fireball extends Sprite {
                 MarioGame.OBJECT_BIT;
 
         fdef.shape = shape;
+        fdef.restitution = 1;
+        fdef.friction = 0;
         b2body.createFixture(fdef).setUserData(this);
-        b2body.setLinearVelocity(new Vector2(2, 2.5f));
+        b2body.setLinearVelocity(new Vector2(fireRight ? 2 : -2, 2.5f));
     }
 
     public void draw(Batch batch) {
